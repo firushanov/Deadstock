@@ -1,0 +1,149 @@
+/* ═══════════════════════════════════════════════════════════════
+   DEADSTOCK — theme.css
+   Uber Base type + color system. See THEME.md for the full spec.
+
+   Usage:
+     <link rel="stylesheet" href="theme.css">
+   or:
+     @import url('./theme.css');
+
+   Requires the font link in your <head>:
+   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+   ═══════════════════════════════════════════════════════════════ */
+
+:root{
+  /* ── type ────────────────────────────────────────────────── */
+  --sans:'Plus Jakarta Sans',-apple-system,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+
+  /* ── color — Uber Base semantic tokens ───────────────────── */
+  --bg:#FFFFFF;        /* page                                  */
+  --bg-2:#F6F6F6;      /* inset panels, chips, recall side       */
+  --bg-3:#EEEEEE;      /* hover on --bg-2                        */
+  --fg:#000000;        /* headings, prices, active               */
+  --fg-2:#545454;      /* body — never pure black                */
+  --fg-3:#757575;      /* captions, metadata, mono               */
+  --border:#E2E2E2;    /* hairlines — no shadows anywhere        */
+  --negative:#E11900;  /* hero number, hazards, "not found"      */
+  --positive:#048848;  /* live dot, still-for-sale, high conf    */
+  --warning:#FFC043;   /* reserve — too light for text on white  */
+
+  /* ── hazard badges (darkened for contrast on white) ──────── */
+  --haz-tipover:#E11900;  --haz-fire:#C2410C;
+  --haz-battery:#8A6400;  --haz-chemical:#6D28D9;
+  --haz-other:#545454;
+
+  /* ── shape ───────────────────────────────────────────────── */
+  --r-sm:8px; --r-md:12px; --r-pill:999px;
+
+  /* ── layout ──────────────────────────────────────────────── */
+  --gutter:40px; --maxw:1320px;
+}
+@media(max-width:640px){ :root{ --gutter:20px } }
+
+/* ── reset ─────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);
+  font-size:16px;line-height:1.5;letter-spacing:-0.008em}
+img{max-width:100%;display:block}
+a{color:inherit}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--gutter)}
+
+/* ── type scale ────────────────────────────────────────────────
+   Numbers ALWAYS get tabular-nums — without it the hero number
+   jitters when it animates 23 -> 2 -> 23 and the toggle moment
+   falls apart.
+   ─────────────────────────────────────────────────────────── */
+.t-hero{font-size:clamp(88px,12.5vw,164px);font-weight:800;line-height:.9;
+  letter-spacing:-0.045em;font-variant-numeric:tabular-nums}
+.t-display{font-size:clamp(32px,5vw,56px);font-weight:800;line-height:1.06;
+  letter-spacing:-0.035em}
+.t-h1{font-size:28px;font-weight:700;line-height:1.15;letter-spacing:-0.03em}
+.t-h2{font-size:22px;font-weight:700;line-height:1.2;letter-spacing:-0.025em}
+.t-h3{font-size:17px;font-weight:700;line-height:1.28;letter-spacing:-0.02em}
+.t-price{font-size:28px;font-weight:800;line-height:1.1;letter-spacing:-0.035em;
+  font-variant-numeric:tabular-nums}
+.t-lead{font-size:18px;font-weight:400;line-height:1.5;letter-spacing:-0.01em;color:var(--fg-2)}
+.t-body{font-size:16px;font-weight:400;line-height:1.5;letter-spacing:-0.008em;color:var(--fg-2)}
+.t-label{font-size:16px;font-weight:600;line-height:1.4;letter-spacing:-0.01em}
+.t-chip{font-size:14px;font-weight:500;line-height:1.4;letter-spacing:-0.005em}
+.t-caption{font-size:14px;font-weight:400;line-height:1.5;letter-spacing:-0.005em;color:var(--fg-3)}
+.t-record{font-family:var(--mono);font-size:12px;font-weight:400;line-height:1.6;
+  letter-spacing:.02em;color:var(--fg-3)}
+.num{font-variant-numeric:tabular-nums}
+
+/* ── nav ───────────────────────────────────────────────────── */
+.nav{background:#000;color:#fff}
+.nav-inner{max-width:var(--maxw);margin:0 auto;padding:20px var(--gutter);
+  display:flex;align-items:center;gap:34px}
+.wordmark{font-size:24px;font-weight:800;letter-spacing:-0.035em;line-height:1}
+.nav-link{font-size:16px;font-weight:500;color:#fff;opacity:.82;text-decoration:none;
+  letter-spacing:-0.01em}
+.nav-link:hover{opacity:1}
+
+/* ── buttons ───────────────────────────────────────────────── */
+.btn{display:inline-block;font-family:var(--sans);font-size:15px;font-weight:600;
+  letter-spacing:-0.01em;padding:11px 20px;border:none;border-radius:var(--r-pill);
+  background:#000;color:#fff;text-decoration:none;cursor:pointer;transition:background .14s}
+.btn:hover{background:#333}
+.btn-secondary{background:var(--bg-2);color:var(--fg)}
+.btn-secondary:hover{background:var(--bg-3)}
+
+/* ── chips / segmented toggle ──────────────────────────────── */
+.chip{font-family:var(--sans);font-size:14px;font-weight:500;letter-spacing:-0.005em;
+  padding:9px 16px;border:none;background:var(--bg-2);color:var(--fg-2);
+  cursor:pointer;border-radius:var(--r-pill);transition:.14s}
+.chip:hover{background:var(--bg-3);color:var(--fg)}
+.chip[aria-pressed="true"]{background:#000;color:#fff}
+
+/* Not a bordered group — three separate pills. Keep it large; this is
+   the demo's money shot and it has to read from the back of the room. */
+.seg{display:inline-flex;gap:8px;flex-wrap:wrap}
+.seg button{font-family:var(--sans);font-size:16px;font-weight:600;letter-spacing:-0.01em;
+  padding:13px 22px;border:none;border-radius:var(--r-pill);cursor:pointer;
+  background:var(--bg-2);color:var(--fg);transition:.14s}
+.seg button:hover{background:var(--bg-3)}
+.seg button[aria-pressed="true"]{background:#000;color:#fff}
+
+/* ── card ──────────────────────────────────────────────────── */
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);
+  overflow:hidden;display:flex;flex-direction:column}
+.card-panes{display:grid;grid-template-columns:1fr 1fr}
+@media(max-width:620px){.card-panes{grid-template-columns:1fr}}
+.pane{padding:20px;display:flex;flex-direction:column}
+/* dead record on the left, live product on the right — the
+   desaturation IS the visual argument, don't remove it */
+.pane-archive{background:var(--bg-2)}
+.pane-archive .thumb{filter:grayscale(.3)}
+.thumb{width:100%;aspect-ratio:4/3;object-fit:contain;background:#fff;
+  border-radius:var(--r-sm);margin-bottom:14px}
+.card-foot{font-family:var(--mono);font-size:12px;color:var(--fg-3);
+  padding:14px 20px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+/* ── badge ─────────────────────────────────────────────────── */
+.badge{display:inline-block;align-self:flex-start;font-size:13px;font-weight:600;
+  letter-spacing:-0.005em;padding:5px 11px;border-radius:var(--r-pill)}
+/* inline style sets background:${color}14 and color:${color} */
+
+/* ── live dot ──────────────────────────────────────────────── */
+.dot{width:8px;height:8px;border-radius:50%;background:var(--positive);flex:none;
+  animation:ds-pulse 2s ease-in-out infinite}
+@keyframes ds-pulse{
+  0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(4,136,72,.45)}
+  50%{opacity:.55;box-shadow:0 0 0 6px rgba(4,136,72,0)}
+}
+@media(prefers-reduced-motion:reduce){.dot{animation:none}}
+
+/* ── grid ──────────────────────────────────────────────────── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:20px}
+@media(max-width:540px){.grid{grid-template-columns:1fr}}
+
+/* ── semantic text colors ──────────────────────────────────── */
+.is-negative{color:var(--negative)}
+.is-positive{color:var(--positive)}
+.conf-high{color:var(--positive)}
+.conf-medium{color:#8A6400}
+.conf-low{color:var(--fg-3)}

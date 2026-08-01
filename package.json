@@ -1,0 +1,29 @@
+{
+  "name": "deadstock",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "preflight": "tsx scripts/00-preflight.ts",
+    "fetch": "tsx scripts/01-fetch-recalls.ts",
+    "normalize": "tsx scripts/02-normalize-recalls.ts",
+    "queries": "tsx scripts/03-build-queries.ts",
+    "scrape": "tsx scripts/04-scrape.ts",
+    "index": "tsx scripts/05-index.ts",
+    "match": "tsx scripts/06-match.ts",
+    "agent": "tsx scripts/07-agent-setup.ts"
+  },
+  "dependencies": {
+    "@elastic/elasticsearch": "9.4.3",
+    "apify-client": "^2.14.0",
+    "dotenv": "^17.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

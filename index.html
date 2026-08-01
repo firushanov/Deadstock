@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Deadstock — recalled products you can buy right now</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   DEADSTOCK — Uber Base type + color system
+
+   TYPE
+   Uber's own face is Uber Move (proprietary, unlicensable).
+   Plus Jakarta Sans is the closest free match: same geometric
+   bowls, tall x-height, and it holds up at heavy display weights
+   the way Uber Move does. Loaded from Google Fonts.
+
+   Uber's type rules, copied:
+     · Display sizes are BIG and tight — negative tracking, ~1.05 line-height
+     · Headings are 700, never lighter
+     · Labels/nav are 500 at 14–16px
+     · Body is 400 at 16–18px in #545454, not black
+     · Almost nothing is uppercase except tiny metadata
+
+   COLOR — Uber Base semantic tokens
+     backgroundPrimary   #FFFFFF     contentPrimary    #000000
+     backgroundSecondary #F6F6F6     contentSecondary  #545454
+     backgroundTertiary  #EEEEEE     contentTertiary   #757575
+     borderOpaque        #E2E2E2
+     negative #E11900 · positive #048848 · warning #FFC043
+   ───────────────────────────────────────────────────────────── */
+:root{
+  --bg:#FFFFFF; --bg-2:#F6F6F6; --bg-3:#EEEEEE;
+  --fg:#000000; --fg-2:#545454; --fg-3:#757575;
+  --border:#E2E2E2;
+  --negative:#E11900; --positive:#048848; --warning:#FFC043;
+
+  --sans:'Plus Jakarta Sans',-apple-system,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+
+  --r-sm:8px; --r-md:12px; --r-pill:999px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--sans);
+  font-size:16px; line-height:1.5; padding-bottom:96px;
+}
+.wrap{max-width:1320px;margin:0 auto;padding:0 40px}
+@media(max-width:640px){.wrap{padding:0 20px}}
+
+/* ── NAV — Uber's black bar ──────────────────────────────────── */
+nav{background:#000;color:#fff}
+.nav-inner{max-width:1320px;margin:0 auto;padding:20px 40px;display:flex;align-items:center;gap:34px}
+@media(max-width:640px){.nav-inner{padding:16px 20px;gap:20px}}
+.wordmark{font-size:24px;font-weight:800;letter-spacing:-0.035em;line-height:1}
+.nav-link{font-size:16px;font-weight:500;color:#fff;opacity:.82;text-decoration:none;letter-spacing:-0.01em}
+.nav-link:hover{opacity:1}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:12px;color:#B7B7B7;letter-spacing:.02em}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--positive);animation:pulse 2s ease-in-out infinite;flex:none}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(4,136,72,.45)}50%{opacity:.55;box-shadow:0 0 0 6px rgba(4,136,72,0)}}
+
+/* ── HERO — Uber Display scale: huge, 800, tight ─────────────── */
+header{padding:64px 0 48px}
+.kicker{font-size:16px;font-weight:500;color:var(--fg-2);letter-spacing:-0.01em;margin-bottom:24px}
+.hero-num{
+  font-size:clamp(88px,12.5vw,164px); font-weight:800; line-height:.9;
+  letter-spacing:-0.045em; font-variant-numeric:tabular-nums;
+  color:var(--negative);
+}
+.hero-sub{
+  font-size:clamp(32px,5vw,56px); font-weight:800; letter-spacing:-0.035em;
+  line-height:1.06; margin-top:12px; max-width:16ch;
+}
+.hero-meta{font-size:18px;color:var(--fg-2);margin-top:24px;letter-spacing:-0.01em}
+
+/* ── TOGGLE — Uber pill buttons ──────────────────────────────── */
+.mode{margin-top:36px}
+.seg{display:inline-flex;gap:8px;flex-wrap:wrap}
+.seg button{
+  font-family:var(--sans);font-size:16px;font-weight:600;letter-spacing:-0.01em;
+  padding:13px 22px;border:none;border-radius:var(--r-pill);cursor:pointer;
+  background:var(--bg-2);color:var(--fg);transition:background .14s,color .14s
+}
+.seg button:hover{background:var(--bg-3)}
+.seg button[aria-pressed="true"]{background:#000;color:#fff}
+.mode-note{font-size:18px;color:var(--fg-2);margin-top:20px;max-width:60ch;min-height:56px;
+  line-height:1.5;letter-spacing:-0.01em}
+.mode-note b{color:var(--fg);font-weight:700}
+
+/* ── FILTERS ─────────────────────────────────────────────────── */
+.filters{display:flex;gap:8px;flex-wrap:wrap;padding:28px 0 32px;border-top:1px solid var(--border);margin-top:40px}
+.chip{
+  font-family:var(--sans);font-size:14px;font-weight:500;letter-spacing:-0.005em;
+  padding:9px 16px;border:none;background:var(--bg-2);color:var(--fg-2);
+  cursor:pointer;border-radius:var(--r-pill);transition:.14s
+}
+.chip:hover{background:var(--bg-3);color:var(--fg)}
+.chip[aria-pressed="true"]{background:#000;color:#fff}
+
+/* ── THE WALL ────────────────────────────────────────────────── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:20px}
+@media(max-width:540px){.grid{grid-template-columns:1fr}}
+
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);
+  overflow:hidden;display:flex;flex-direction:column}
+.panes{display:grid;grid-template-columns:1fr 1fr}
+@media(max-width:620px){.panes{grid-template-columns:1fr}}
+.pane{padding:20px;display:flex;flex-direction:column}
+.pane.recall{background:var(--bg-2)}
+
+.pane-label{font-size:14px;font-weight:600;color:var(--fg-3);letter-spacing:-0.005em;
+  margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.pane.listing .pane-label{color:var(--positive)}
+.thumb{width:100%;aspect-ratio:4/3;object-fit:contain;background:#fff;
+  border-radius:var(--r-sm);margin-bottom:14px}
+.pane.recall .thumb{filter:grayscale(.3)}
+.pane-title{font-size:17px;font-weight:700;letter-spacing:-0.02em;line-height:1.28;margin-bottom:12px}
+.pane.listing .pane-title{font-weight:500;letter-spacing:-0.012em;color:#1A1A1A}
+
+.badge{display:inline-block;align-self:flex-start;font-size:13px;font-weight:600;
+  letter-spacing:-0.005em;padding:5px 11px;border-radius:var(--r-pill);margin-bottom:12px}
+.hazard-text{font-size:15px;color:var(--fg-2);line-height:1.45;margin-bottom:14px;letter-spacing:-0.008em}
+.price{font-size:28px;font-weight:800;letter-spacing:-0.035em;font-variant-numeric:tabular-nums}
+.retailer{font-size:15px;color:var(--fg-2);margin-top:2px;text-transform:capitalize}
+.stars{font-size:14px;color:var(--fg-3);margin-top:6px;font-variant-numeric:tabular-nums}
+.btn{display:inline-block;align-self:flex-start;margin-top:16px;font-size:15px;font-weight:600;
+  letter-spacing:-0.01em;padding:11px 20px;border-radius:var(--r-pill);
+  background:#000;color:#fff;text-decoration:none;transition:.14s}
+.btn:hover{background:#333}
+
+.meta{font-family:var(--mono);font-size:12px;color:var(--fg-3);margin-top:auto;padding-top:14px}
+.meta a{color:var(--fg-2);text-decoration:underline;text-underline-offset:3px}
+.meta a:hover{color:var(--fg)}
+
+.footrule{font-family:var(--mono);font-size:12px;color:var(--fg-3);
+  padding:14px 20px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.nokeyword{color:var(--negative);font-weight:500}
+.conf-high{color:var(--positive)} .conf-medium{color:#8A6400} .conf-low{color:var(--fg-3)}
+
+.empty{padding:88px 0;text-align:center;color:var(--fg-2);font-size:18px;letter-spacing:-0.01em}
+.empty b{display:block;font-size:56px;font-weight:800;letter-spacing:-0.04em;color:var(--fg);margin-bottom:12px}
+
+footer{margin-top:72px;padding-top:28px;border-top:1px solid var(--border);
+  font-size:14px;color:var(--fg-3);line-height:1.6;max-width:86ch;letter-spacing:-0.005em}
+footer strong{color:var(--fg-2);font-weight:700}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <span class="wordmark">Deadstock</span>
+    <a class="nav-link" href="#">Recalls</a>
+    <a class="nav-link" href="#">Hazards</a>
+    <a class="nav-link" href="#">Method</a>
+    <span class="nav-right"><span class="dot"></span><span id="liveLabel">LIVE</span></span>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">US CPSC recall database × live marketplace listings</div>
+  <div class="hero-num" id="heroNum">—</div>
+  <h1 class="hero-sub">recalled products you can buy right now</h1>
+  <div class="hero-meta" id="heroMeta">loading…</div>
+
+  <div class="mode">
+    <div class="seg" role="group" aria-label="Match mode">
+      <button data-mode="keyword"  aria-pressed="false">Keyword only</button>
+      <button data-mode="semantic" aria-pressed="true">Semantic</button>
+      <button data-mode="hybrid"   aria-pressed="false">Hybrid</button>
+    </div>
+    <p class="mode-note" id="modeNote"></p>
+  </div>
+</header>
+
+<div class="filters" id="filters"></div>
+<main class="grid" id="grid"></main>
+<div class="empty" id="empty" hidden><b>0</b>Keyword matching found almost nothing. That is the point — switch to Semantic.</div>
+
+<footer>
+  <strong>How to read this.</strong> Matches are generated algorithmically by comparing CPSC recall notices to marketplace listings scraped minutes ago.
+  A match indicates a <strong>likely</strong> product correspondence, not a verified one — a listing may be a different variant, a corrected version, or a different seller reusing a title.
+  Always check the linked CPSC recall notice before drawing conclusions. Deadstock is a research demo and a lead generator for regulators, not a compliance tool and not a verdict.
+</footer>
+
+</div>
+
+<script>
+/* hazard palette — Uber Base negative/warning family, legible on white */
+const HAZ = {
+  tip_over:{l:'Tip-Over / Crush',c:'#E11900'}, fire_burn:{l:'Fire / Burn',c:'#C2410C'},
+  battery:{l:'Battery',c:'#8A6400'},           choking:{l:'Choking',c:'#E11900'},
+  suffocation:{l:'Suffocation',c:'#E11900'},   fall:{l:'Fall',c:'#C2410C'},
+  laceration:{l:'Laceration',c:'#C2410C'},     chemical:{l:'Toxic / Chemical',c:'#6D28D9'},
+  drowning:{l:'Drowning',c:'#E11900'},         impact:{l:'Impact',c:'#C2410C'},
+  electrical:{l:'Electrical',c:'#8A6400'},     other:{l:'Other',c:'#545454'}
+};
+const NOTE = {
+  keyword:'Recall notices and product listings never use the same words. A recall says <b>“clothing storage unit.”</b> The listing says <b>“chest of drawers.”</b> Exact matching finds almost nothing.',
+  semantic:'Elastic <b>semantic_text</b> matches meaning, not words — the embeddings put “dresser,” “chest of drawers,” and “clothing storage unit” next to each other. Same data. Same index.',
+  hybrid:'RRF blends the keyword and semantic rankings. Keyword contributes precision where the words happen to line up; semantic carries everything else.'
+};
+
+let ALL = [], mode = 'semantic', fRetailer = null, fHazard = null;
+
+const FALLBACK = [{
+  recall_number:'26645', recall_date:'2026-07-30',
+  recall_product:'EnHomee 15-Drawer 51" Dressers',
+  recall_image:'https://www.cpsc.gov/s3fs-public/Picture1_55.jpg',
+  cpsc_url:'https://www.cpsc.gov/Recalls/2026/15-Drawer-Dressers-Recalled-Due-to-Risk-of-Serious-Injury-or-Death-from-Tip-Over-and-Entrapment-Hazards',
+  hazard_type:'tip_over',
+  hazard_text:'Unstable if not anchored to the wall — tip-over and entrapment hazards that can result in serious injury or death to children.',
+  listing_title:'15 Drawer Dresser for Bedroom, Tall Fabric Chest of Drawers with Side Pockets, Sturdy Metal Frame, Wood Top, Closet Organizer for Nursery',
+  listing_url:'#', listing_image:'', retailer:'amazon', price_usd:139.99,
+  rating:4.3, review_count:21283, semantic_score:8.4, found_by_keyword:false,
+  confidence:'high', days_since_recall:1
+}];
+
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const money = v => (v==null||isNaN(v)) ? 'price unavailable' : '$'+Number(v).toFixed(2);
+
+function visible(){
+  return ALL.filter(m=>{
+    if (mode==='keyword' && !m.found_by_keyword) return false;
+    if (fRetailer && m.retailer !== fRetailer) return false;
+    if (fHazard   && m.hazard_type !== fHazard) return false;
+    return true;
+  });
+}
+
+function card(m){
+  const h = HAZ[m.hazard_type] || HAZ.other;
+  const img = u => u ? `<img class="thumb" src="${esc(u)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`
+                     : `<div class="thumb"></div>`;
+  return `<article class="card">
+    <div class="panes">
+      <div class="pane recall">
+        <div class="pane-label">Recalled · ${esc(m.recall_date||'').slice(0,10)}</div>
+        ${img(m.recall_image)}
+        <div class="pane-title">${esc(m.recall_product)}</div>
+        <span class="badge" style="background:${h.c}14;color:${h.c}">${esc(h.l)}</span>
+        <div class="hazard-text">${esc((m.hazard_text||'').slice(0,175))}${(m.hazard_text||'').length>175?'…':''}</div>
+        <div class="meta">CPSC recall <a href="${esc(m.cpsc_url)}" target="_blank" rel="noopener">${esc(m.recall_number)} ↗</a></div>
+      </div>
+      <div class="pane listing">
+        <div class="pane-label"><span class="dot"></span>Still for sale</div>
+        ${img(m.listing_image)}
+        <div class="pane-title">${esc((m.listing_title||'').slice(0,115))}${(m.listing_title||'').length>115?'…':''}</div>
+        <div class="price">${money(m.price_usd)}</div>
+        <div class="retailer">${esc(m.retailer||'')}</div>
+        ${m.rating?`<div class="stars">★ ${esc(m.rating)}${m.review_count?` (${Number(m.review_count).toLocaleString()})`:''}</div>`:''}
+        <a class="btn" href="${esc(m.listing_url)}" target="_blank" rel="noopener">View listing</a>
+      </div>
+    </div>
+    <div class="footrule">
+      <span>${m.days_since_recall!=null?`${m.days_since_recall} days since recall — still listed`:''}</span>
+      <span>match ${m.semantic_score!=null?Number(m.semantic_score).toFixed(1):'—'}
+        · <span class="conf-${esc(m.confidence||'low')}">${esc(m.confidence||'low')}</span>
+        · ${m.found_by_keyword ? 'keyword: found' : '<span class="nokeyword">keyword: not found</span>'}</span>
+    </div>
+  </article>`;
+}
+
+function render(){
+  const rows = visible();
+  document.getElementById('heroNum').textContent = rows.length;
+  document.getElementById('modeNote').innerHTML = NOTE[mode];
+  document.getElementById('grid').innerHTML = rows.map(card).join('');
+  document.getElementById('empty').hidden = !(rows.length === 0 && mode === 'keyword');
+  document.querySelectorAll('.seg button').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+}
+
+function buildFilters(){
+  const box = document.getElementById('filters');
+  const retailers = [...new Set(ALL.map(m=>m.retailer).filter(Boolean))];
+  const hazards   = [...new Set(ALL.map(m=>m.hazard_type).filter(Boolean))];
+  box.innerHTML =
+    retailers.map(r=>`<button class="chip" data-k="retailer" data-v="${esc(r)}" aria-pressed="false" style="text-transform:capitalize">${esc(r)}</button>`).join('') +
+    hazards.map(hz=>{const h=HAZ[hz]||HAZ.other;
+      return `<button class="chip" data-k="hazard" data-v="${esc(hz)}" aria-pressed="false">${esc(h.l)}</button>`}).join('');
+  box.querySelectorAll('.chip').forEach(c => c.onclick = () => {
+    const k=c.dataset.k, v=c.dataset.v;
+    if (k==='retailer') fRetailer = fRetailer===v ? null : v;
+    else                fHazard   = fHazard===v   ? null : v;
+    box.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed',
+      String((x.dataset.k==='retailer'&&x.dataset.v===fRetailer)||(x.dataset.k==='hazard'&&x.dataset.v===fHazard))));
+    render();
+  });
+}
+
+document.querySelectorAll('.seg button').forEach(b => b.onclick = () => { mode = b.dataset.mode; render(); });
+
+/* Serve over http (python3 -m http.server 8080) — file:// blocks fetch.
+   If the data file is missing the fallback renders, so you never stare
+   at a blank screen on stage. */
+(async () => {
+  let src = 'cached';
+  try {
+    const r = await fetch('data/06-matches.json', {cache:'no-store'});
+    if (r.ok) { const j = await r.json(); ALL = Array.isArray(j) ? j : (j.matches||[]); src='live'; }
+  } catch(e){}
+  if (!ALL.length) { ALL = FALLBACK; src = 'cached'; }
+
+  const scraped = ALL.map(m=>m.matched_at||m.scraped_at).filter(Boolean).sort().pop();
+  const mins = scraped ? Math.max(1, Math.round((Date.now()-new Date(scraped))/60000)) : null;
+  const retailers = [...new Set(ALL.map(m=>m.retailer).filter(Boolean))];
+  const recalls   = new Set(ALL.map(m=>m.recall_number)).size;
+
+  document.getElementById('heroMeta').textContent =
+    `${mins?`Scraped ${mins} minutes ago`:'Cached dataset'} · ${retailers.join(', ')||'amazon'} · ${recalls} CPSC recalls checked`;
+  document.getElementById('liveLabel').textContent = src==='live' ? 'LIVE' : 'CACHED';
+
+  buildFilters();
+  render();
+})();
+</script>
+</body>
+</html>

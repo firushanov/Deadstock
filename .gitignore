@@ -70,6 +70,14 @@ web_modules/
 .env.*
 !.env.example
 
+# Deadstock: cached pipeline output (regenerable, can hold PII / MB of scrape data).
+# Use data/* not data/ so git will descend and apply the negations below.
+# Whitelist 06-matches.json because the static index.html demo reads it directly --
+# without it, `python3 -m http.server` renders an empty wall of cards.
+data/*
+!data/.gitkeep
+!data/06-matches.json
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 170" width="240" height="170" role="img" aria-label="Deadstock">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&amp;display=swap');
+    .wm{font-family:'Plus Jakarta Sans',-apple-system,'SF Pro Text','Segoe UI',Helvetica,Arial,sans-serif;
+        font-weight:800;font-size:37px;letter-spacing:-1.6px;fill:#000}
+  </style>
+  <!-- barcode mark: three red bars among black. the red ones are the
+       recalled products that never came off the shelf. -->
+  <g fill="#000">
+    <rect x="0"   y="0" width="8"  height="96"/>
+    <rect x="14"  y="0" width="4"  height="96"/>
+    <rect x="42"  y="0" width="4"  height="96"/>
+    <rect x="52"  y="0" width="8"  height="96"/>
+    <rect x="66"  y="0" width="4"  height="96"/>
+    <rect x="76"  y="0" width="10" height="96"/>
+    <rect x="114" y="0" width="4"  height="96"/>
+    <rect x="124" y="0" width="8"  height="96"/>
+    <rect x="138" y="0" width="4"  height="96"/>
+    <rect x="148" y="0" width="10" height="96"/>
+    <rect x="164" y="0" width="6"  height="96"/>
+    <rect x="194" y="0" width="4"  height="96"/>
+    <rect x="204" y="0" width="8"  height="96"/>
+    <rect x="218" y="0" width="4"  height="96"/>
+    <rect x="228" y="0" width="12" height="96"/>
+  </g>
+  <g fill="#E11900">
+    <rect x="24"  y="0" width="12" height="96"/>
+    <rect x="92"  y="0" width="16" height="96"/>
+    <rect x="176" y="0" width="12" height="96"/>
+  </g>
+  <text class="wm" x="0" y="150">DEADSTOCK</text>
+</svg>
