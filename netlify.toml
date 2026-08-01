@@ -1,0 +1,13 @@
+[build]
+  publish = "dist"
+  command = "mkdir -p dist/data && cp index.html theme.css dist/ && cp -R brand dist/ && cp data/06-matches.json dist/data/"
+
+[[headers]]
+  for = "/data/*"
+  [headers.values]
+    Cache-Control = "public, max-age=300"
+
+[[headers]]
+  for = "/brand/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
