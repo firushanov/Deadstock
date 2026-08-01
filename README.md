@@ -1,4 +1,9 @@
-# Deadstock
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="brand/logo-white.svg">
+    <img src="brand/logo.svg" alt="Deadstock" width="360">
+  </picture>
+</p>
 
 **Recalled products you can buy right now.**
 
