@@ -60,7 +60,7 @@ export type QuerySpec = {
   query: string;                // generic shopper phrase, <=6 words
 };
 
-// ---------- Apify raw (Amazon santamaria) ----------
+// ---------- Apify raw (per retailer) ----------
 
 export type RawAmazonListing = {
   asin?: string;
@@ -79,11 +79,46 @@ export type RawAmazonListing = {
   scrapedAt?: string;
 };
 
+// automation-lab/walmart-scraper (title lives in `name`, id in `usItemId`)
+export type RawWalmartListing = {
+  usItemId?: string;
+  name?: string;
+  price?: number;
+  priceString?: string;         // "$19.88" — pass this through parseUsdPrice
+  rating?: number;
+  reviewCount?: number;
+  seller?: string;
+  fulfillmentType?: string;
+  thumbnail?: string;
+  url?: string;
+  isSponsored?: boolean;
+  scrapedAt?: string;
+};
+
+// automation-lab/ebay-scraper (id in `itemId`; ⚠ priceString sometimes ships in COP)
+export type RawEbayListing = {
+  itemId?: string;
+  title?: string;
+  price?: number;
+  priceString?: string;         // ⚠ non-USD possible — parseUsdPrice drops it
+  condition?: string;
+  listingType?: string;
+  sellerName?: string;
+  sellerFeedbackPercent?: string;
+  soldCount?: string;
+  thumbnail?: string;
+  url?: string;
+  isSponsored?: boolean;
+  scrapedAt?: string;
+};
+
+export type Retailer = "amazon" | "walmart" | "ebay";
+
 // ---------- Normalized listing ----------
 
 export type Listing = {
-  listing_id: string;           // asin
-  retailer: "amazon";
+  listing_id: string;           // asin / usItemId / itemId
+  retailer: Retailer;
   title: string;
   price_usd: number | null;     // null if not a clean leading $
   url: string;
