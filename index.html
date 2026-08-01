@@ -147,6 +147,16 @@ section{padding:112px 0}
 .chip:hover{background:var(--bg-3);color:var(--fg)}
 .chip[aria-pressed="true"]{background:#000;color:#fff}
 
+/* retailer chips render a monochrome wordmark instead of text.
+   invert the mark when the chip goes active so it reads on the black pill. */
+.chip-retailer{padding:8px 16px;display:inline-flex;align-items:center;justify-content:center;
+  min-width:88px;height:36px}
+.chip-retailer img{height:16px;width:auto;display:block;opacity:.72;transition:opacity .14s,filter .14s;
+  pointer-events:none}
+.chip-retailer:hover img{opacity:1}
+.chip-retailer[aria-pressed="true"] img{filter:invert(1);opacity:1}
+.filter-divider{width:1px;align-self:stretch;background:var(--border);margin:0 4px}
+
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:20px}
 @media(max-width:540px){.grid{grid-template-columns:1fr}}
 
@@ -303,6 +313,7 @@ footer .colofon a:hover{color:var(--fg)}
     <a class="nav-link" href="#how">How</a>
     <a class="nav-link" href="#why">Why Elastic + Apify</a>
     <a class="nav-link" href="#demo">Live matches</a>
+    <a class="nav-link" href="#architecture">Architecture</a>
     <a class="nav-link" href="#chat">Ask</a>
     <a class="nav-link" href="#method">Method</a>
     <span class="nav-right"><span class="dot"></span><span id="liveLabel">LIVE</span></span>
@@ -414,7 +425,7 @@ footer .colofon a:hover{color:var(--fg)}
 
     <div class="filters reveal" id="filters"></div>
     <main class="grid" id="grid"></main>
-    <div class="empty" id="empty" hidden><b>0</b>Keyword matching found almost nothing. That is the point — switch to Semantic.</div>
+    <div class="empty" id="empty" hidden><b>0</b><span id="emptyMsg">Keyword matching found almost nothing. That is the point — switch to Semantic.</span></div>
   </div>
 </section>
 
@@ -531,6 +542,16 @@ const NOTE = {
   hybrid:'RRF blends the keyword and semantic rankings. Keyword contributes precision where the words happen to line up; semantic carries everything else.'
 };
 
+/* Retailer roster is hardcoded so all three marks always appear as filter
+   chips, even if only one is in the current dataset. Tonight's pipeline is
+   Amazon-only (CLAUDE.md §5) — clicking Walmart or eBay filters to zero and
+   the empty state explains why. That's honest, not a bug. */
+const RETAILERS = [
+  { id:'amazon',  label:'Amazon',  logo:'brand/retailers/amazon.svg'  },
+  { id:'walmart', label:'Walmart', logo:'brand/retailers/walmart.svg' },
+  { id:'ebay',    label:'eBay',    logo:'brand/retailers/ebay.svg'    },
+];
+
 let ALL = [], mode = 'semantic', fRetailer = null, fHazard = null;
 
 const FALLBACK = [{
@@ -596,17 +617,33 @@ function render(){
   document.getElementById('heroNum').textContent = rows.length;
   document.getElementById('modeNote').innerHTML = NOTE[mode];
   document.getElementById('grid').innerHTML = rows.map(card).join('');
-  document.getElementById('empty').hidden = !(rows.length === 0 && mode === 'keyword');
+  const empty = document.getElementById('empty');
+  if (rows.length === 0) {
+    const rlabel = RETAILERS.find(r => r.id === fRetailer)?.label || fRetailer;
+    document.getElementById('emptyMsg').innerHTML =
+      mode === 'keyword'
+        ? 'Keyword matching found almost nothing. That is the point — switch to Semantic.'
+        : fRetailer && fRetailer !== 'amazon'
+          ? `No <b>${esc(rlabel)}</b> matches yet — tonight's pipeline only scraped Amazon. Walmart and eBay are one Apify actor each.`
+          : fHazard
+            ? `No matches for this hazard type with the current mode.`
+            : 'No matches with current filters.';
+    empty.hidden = false;
+  } else {
+    empty.hidden = true;
+  }
   document.querySelectorAll('.seg button').forEach(b =>
     b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
 }
 
 function buildFilters(){
   const box = document.getElementById('filters');
-  const retailers = [...new Set(ALL.map(m=>m.retailer).filter(Boolean))];
-  const hazards   = [...new Set(ALL.map(m=>m.hazard_type).filter(Boolean))];
+  const hazards = [...new Set(ALL.map(m=>m.hazard_type).filter(Boolean))];
   box.innerHTML =
-    retailers.map(r=>`<button class="chip" data-k="retailer" data-v="${esc(r)}" aria-pressed="false" style="text-transform:capitalize">${esc(r)}</button>`).join('') +
+    RETAILERS.map(r =>
+      `<button class="chip chip-retailer" data-k="retailer" data-v="${esc(r.id)}" aria-pressed="false" title="Filter to ${esc(r.label)}"><img src="${esc(r.logo)}" alt="${esc(r.label)}" loading="lazy"></button>`
+    ).join('') +
+    (hazards.length ? '<span class="filter-divider" aria-hidden="true"></span>' : '') +
     hazards.map(hz=>{const h=HAZ[hz]||HAZ.other;
       return `<button class="chip" data-k="hazard" data-v="${esc(hz)}" aria-pressed="false">${esc(h.l)}</button>`}).join('');
   box.querySelectorAll('.chip').forEach(c => c.onclick = () => {
