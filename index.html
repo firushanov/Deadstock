@@ -4,32 +4,18 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Deadstock — recalled products you can buy right now</title>
+<link rel="icon" type="image/svg+xml" href="brand/favicon.svg">
+<meta property="og:title" content="Deadstock — recalled products you can buy right now">
+<meta property="og:description" content="US CPSC recall database × live marketplace listings, joined with Elastic semantic search.">
+<meta property="og:image" content="brand/concept-barcode.png">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ─────────────────────────────────────────────────────────────
    DEADSTOCK — Uber Base type + color system
-
-   TYPE
-   Uber's own face is Uber Move (proprietary, unlicensable).
-   Plus Jakarta Sans is the closest free match: same geometric
-   bowls, tall x-height, and it holds up at heavy display weights
-   the way Uber Move does. Loaded from Google Fonts.
-
-   Uber's type rules, copied:
-     · Display sizes are BIG and tight — negative tracking, ~1.05 line-height
-     · Headings are 700, never lighter
-     · Labels/nav are 500 at 14–16px
-     · Body is 400 at 16–18px in #545454, not black
-     · Almost nothing is uppercase except tiny metadata
-
-   COLOR — Uber Base semantic tokens
-     backgroundPrimary   #FFFFFF     contentPrimary    #000000
-     backgroundSecondary #F6F6F6     contentSecondary  #545454
-     backgroundTertiary  #EEEEEE     contentTertiary   #757575
-     borderOpaque        #E2E2E2
-     negative #E11900 · positive #048848 · warning #FFC043
+   See THEME.md for full spec.
    ───────────────────────────────────────────────────────────── */
 :root{
   --bg:#FFFFFF; --bg-2:#F6F6F6; --bg-3:#EEEEEE;
@@ -43,19 +29,20 @@
   --r-sm:8px; --r-md:12px; --r-pill:999px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;scroll-behavior:smooth}
 body{
   background:var(--bg); color:var(--fg); font-family:var(--sans);
-  font-size:16px; line-height:1.5; padding-bottom:96px;
+  font-size:16px; line-height:1.5;
 }
 .wrap{max-width:1320px;margin:0 auto;padding:0 40px}
 @media(max-width:640px){.wrap{padding:0 20px}}
 
 /* ── NAV — Uber's black bar ──────────────────────────────────── */
-nav{background:#000;color:#fff}
+nav{background:#000;color:#fff;position:sticky;top:0;z-index:20}
 .nav-inner{max-width:1320px;margin:0 auto;padding:20px 40px;display:flex;align-items:center;gap:34px}
 @media(max-width:640px){.nav-inner{padding:16px 20px;gap:20px}}
-.wordmark{font-size:24px;font-weight:800;letter-spacing:-0.035em;line-height:1}
+.wordmark{display:inline-flex;align-items:center;height:44px;line-height:1}
+.wordmark img{height:100%;width:auto;display:block}
 .nav-link{font-size:16px;font-weight:500;color:#fff;opacity:.82;text-decoration:none;letter-spacing:-0.01em}
 .nav-link:hover{opacity:1}
 .nav-right{margin-left:auto;display:flex;align-items:center;gap:8px;
@@ -63,21 +50,81 @@ nav{background:#000;color:#fff}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--positive);animation:pulse 2s ease-in-out infinite;flex:none}
 @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(4,136,72,.45)}50%{opacity:.55;box-shadow:0 0 0 6px rgba(4,136,72,0)}}
 
-/* ── HERO — Uber Display scale: huge, 800, tight ─────────────── */
-header{padding:64px 0 48px}
-.kicker{font-size:16px;font-weight:500;color:var(--fg-2);letter-spacing:-0.01em;margin-bottom:24px}
+/* ── HERO — video background + display type overlay ──────────── */
+.hero{position:relative;overflow:hidden;background:#000;color:#fff;isolation:isolate}
+.hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.hero-scrim{position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.35) 40%,rgba(0,0,0,.75) 100%)}
+.hero-inner{padding:112px 0 96px;position:relative}
+@media(max-width:640px){.hero-inner{padding:72px 0 64px}}
+.kicker{font-size:16px;font-weight:500;color:#D7D7D7;letter-spacing:-0.01em;margin-bottom:28px}
 .hero-num{
   font-size:clamp(88px,12.5vw,164px); font-weight:800; line-height:.9;
   letter-spacing:-0.045em; font-variant-numeric:tabular-nums;
   color:var(--negative);
+  text-shadow:0 2px 40px rgba(0,0,0,.5);
 }
 .hero-sub{
   font-size:clamp(32px,5vw,56px); font-weight:800; letter-spacing:-0.035em;
-  line-height:1.06; margin-top:12px; max-width:16ch;
+  line-height:1.06; margin-top:12px; max-width:18ch; color:#fff;
+  text-shadow:0 2px 30px rgba(0,0,0,.6);
 }
-.hero-meta{font-size:18px;color:var(--fg-2);margin-top:24px;letter-spacing:-0.01em}
+.hero-meta{font-size:18px;color:#D7D7D7;margin-top:28px;letter-spacing:-0.01em}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:36px}
+.hero-cta a{display:inline-block;padding:14px 26px;border-radius:var(--r-pill);
+  font-size:16px;font-weight:600;letter-spacing:-0.01em;text-decoration:none;transition:.14s}
+.hero-cta .primary{background:#fff;color:#000}
+.hero-cta .primary:hover{background:#EEE}
+.hero-cta .secondary{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35)}
+.hero-cta .secondary:hover{background:rgba(255,255,255,.08);border-color:#fff}
 
-/* ── TOGGLE — Uber pill buttons ──────────────────────────────── */
+/* ── SECTION SCAFFOLDING ─────────────────────────────────────── */
+section{padding:112px 0}
+@media(max-width:640px){section{padding:72px 0}}
+.section-kicker{font-family:var(--mono);font-size:12px;font-weight:500;
+  color:var(--fg-3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px}
+.section-h{font-size:clamp(32px,4.4vw,52px);font-weight:800;letter-spacing:-0.035em;
+  line-height:1.06;max-width:22ch;color:var(--fg)}
+.section-lede{font-size:20px;color:var(--fg-2);margin-top:22px;max-width:64ch;
+  line-height:1.5;letter-spacing:-0.01em}
+.section-lede b{color:var(--fg);font-weight:700}
+
+/* ── HOW IT WORKS — 3-step grid ──────────────────────────────── */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:56px}
+@media(max-width:900px){.steps{grid-template-columns:1fr;gap:36px}}
+.step{display:flex;flex-direction:column}
+.step-img{width:100%;aspect-ratio:4/3;object-fit:cover;
+  border-radius:var(--r-md);border:1px solid var(--border);
+  background:var(--bg-2)}
+.step-n{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.08em;
+  color:var(--negative);text-transform:uppercase;margin-top:24px}
+.step-h{font-size:22px;font-weight:700;letter-spacing:-0.025em;
+  line-height:1.2;margin-top:10px;color:var(--fg)}
+.step-p{font-size:16px;color:var(--fg-2);margin-top:12px;line-height:1.55;letter-spacing:-0.008em}
+.step-p code{font-family:var(--mono);font-size:13px;background:var(--bg-2);
+  padding:2px 6px;border-radius:4px;color:var(--fg)}
+
+/* ── WHY ELASTIC + APIFY — 2-column contrast ────────────────── */
+.why{background:var(--bg-2)}
+.why-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:80px;align-items:start;margin-top:56px}
+@media(max-width:900px){.why-grid{grid-template-columns:1fr;gap:48px}}
+.why-body p{font-size:18px;color:var(--fg-2);line-height:1.6;letter-spacing:-0.008em;margin-bottom:20px;max-width:56ch}
+.why-body p b{color:var(--fg);font-weight:700}
+
+.contrast{border:1px solid var(--border);border-radius:var(--r-md);background:#fff;overflow:hidden}
+.contrast-row{padding:24px 26px;border-bottom:1px solid var(--border)}
+.contrast-row:last-child{border-bottom:none}
+.contrast-label{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.08em;
+  color:var(--fg-3);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.contrast-quote{font-size:17px;color:var(--fg);font-weight:500;letter-spacing:-0.012em;line-height:1.4}
+.contrast-quote em{color:var(--fg-2);font-style:normal;font-weight:400}
+.contrast-verdict{padding:20px 26px;background:var(--bg-2);
+  font-family:var(--mono);font-size:13px;color:var(--fg-2);letter-spacing:.005em;line-height:1.6}
+.contrast-verdict .miss{color:var(--negative);font-weight:500}
+.contrast-verdict .hit{color:var(--positive);font-weight:500}
+
+/* ── DEMO SECTION ────────────────────────────────────────────── */
+.demo{border-top:1px solid var(--border)}
 .mode{margin-top:36px}
 .seg{display:inline-flex;gap:8px;flex-wrap:wrap}
 .seg button{
@@ -91,7 +138,6 @@ header{padding:64px 0 48px}
   line-height:1.5;letter-spacing:-0.01em}
 .mode-note b{color:var(--fg);font-weight:700}
 
-/* ── FILTERS ─────────────────────────────────────────────────── */
 .filters{display:flex;gap:8px;flex-wrap:wrap;padding:28px 0 32px;border-top:1px solid var(--border);margin-top:40px}
 .chip{
   font-family:var(--sans);font-size:14px;font-weight:500;letter-spacing:-0.005em;
@@ -101,7 +147,6 @@ header{padding:64px 0 48px}
 .chip:hover{background:var(--bg-3);color:var(--fg)}
 .chip[aria-pressed="true"]{background:#000;color:#fff}
 
-/* ── THE WALL ────────────────────────────────────────────────── */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:20px}
 @media(max-width:540px){.grid{grid-template-columns:1fr}}
 
@@ -145,52 +190,330 @@ header{padding:64px 0 48px}
 .empty{padding:88px 0;text-align:center;color:var(--fg-2);font-size:18px;letter-spacing:-0.01em}
 .empty b{display:block;font-size:56px;font-weight:800;letter-spacing:-0.04em;color:var(--fg);margin-bottom:12px}
 
-footer{margin-top:72px;padding-top:28px;border-top:1px solid var(--border);
-  font-size:14px;color:var(--fg-3);line-height:1.6;max-width:86ch;letter-spacing:-0.005em}
+/* ── CHAT — Elastic Agent Builder embed ─────────────────────── */
+.chat{background:var(--bg);border-top:1px solid var(--border)}
+.chat-panel{margin-top:44px;border:1px solid var(--border);border-radius:var(--r-md);
+  padding:32px;background:var(--bg);max-width:960px}
+@media(max-width:640px){.chat-panel{padding:22px;margin-top:32px}}
+.chat-suggest{margin-bottom:24px}
+.chat-suggest-label{font-size:14px;color:var(--fg-3);margin-bottom:12px;letter-spacing:-0.005em}
+.chat-suggest-chips{display:flex;flex-wrap:wrap;gap:8px}
+.chat-chip{font-family:var(--sans);font-size:14px;font-weight:500;padding:9px 16px;
+  border:1px solid var(--border);background:var(--bg);color:var(--fg-2);
+  cursor:pointer;border-radius:var(--r-pill);transition:.14s;letter-spacing:-0.005em}
+.chat-chip:hover{background:var(--bg-2);color:var(--fg);border-color:var(--fg-3)}
+
+.chat-thread{display:flex;flex-direction:column;gap:18px;margin-bottom:20px;
+  max-height:560px;overflow-y:auto;padding-right:4px}
+.chat-thread:empty{margin-bottom:0}
+.chat-msg{padding:16px 20px;border-radius:var(--r-md);letter-spacing:-0.005em;
+  line-height:1.55;font-size:16px;word-wrap:break-word;overflow-wrap:anywhere}
+.chat-msg.user{background:#000;color:#fff;align-self:flex-end;max-width:75%;
+  font-weight:500;border-bottom-right-radius:4px}
+.chat-msg.bot{background:var(--bg-2);color:var(--fg);align-self:flex-start;max-width:100%;
+  border-bottom-left-radius:4px}
+.chat-msg.bot a{color:var(--negative);text-decoration:underline;text-underline-offset:2px;font-weight:500}
+.chat-msg.bot a:hover{color:#000}
+.chat-msg.bot code{font-family:var(--mono);font-size:.94em;background:var(--bg-3);
+  padding:1px 6px;border-radius:4px}
+.chat-msg.bot strong{font-weight:700;color:var(--fg)}
+.chat-msg.bot p{margin:0 0 12px 0}
+.chat-msg.bot p:last-child{margin-bottom:0}
+.chat-msg.bot ul{padding-left:22px;margin:0 0 12px 0}
+.chat-msg.bot li{margin-bottom:8px}
+.chat-msg.pending{background:var(--bg-2);color:var(--fg-3);font-family:var(--mono);
+  font-size:14px;letter-spacing:.01em}
+.chat-msg.pending .dots{display:inline-block;animation:blinkdots 1.4s infinite;letter-spacing:2px}
+@keyframes blinkdots{0%,100%{opacity:.3}50%{opacity:1}}
+.chat-msg.error{background:#FFEEEC;color:var(--negative);border:1px solid #F7CFCF}
+.chat-tools{font-family:var(--mono);font-size:12px;color:var(--fg-3);margin-top:14px;
+  letter-spacing:.01em;padding-top:12px;border-top:1px solid var(--border)}
+.chat-tools .tool-chip{display:inline-block;background:var(--bg-3);color:var(--fg-2);
+  padding:2px 8px;border-radius:4px;margin-right:6px;margin-top:4px}
+
+.chat-form{display:flex;gap:8px}
+@media(max-width:640px){.chat-form{flex-direction:column}}
+.chat-input{flex:1;font-family:var(--sans);font-size:16px;padding:14px 18px;
+  border:1px solid var(--border);border-radius:var(--r-pill);
+  background:var(--bg);color:var(--fg);letter-spacing:-0.005em}
+.chat-input:focus{outline:none;border-color:#000}
+.chat-input:disabled{background:var(--bg-2);color:var(--fg-3)}
+.chat-send{font-family:var(--sans);font-size:16px;font-weight:600;padding:14px 28px;
+  background:#000;color:#fff;border:none;border-radius:var(--r-pill);cursor:pointer;
+  transition:.14s;letter-spacing:-0.01em;white-space:nowrap}
+.chat-send:hover:not(:disabled){background:#333}
+.chat-send:disabled{background:var(--bg-3);color:var(--fg-3);cursor:wait}
+.chat-note{font-family:var(--mono);font-size:12px;color:var(--fg-3);margin-top:16px;
+  letter-spacing:.01em;line-height:1.5}
+.chat-note code{background:var(--bg-2);padding:1px 6px;border-radius:4px}
+
+/* ── HONESTY / METHOD ────────────────────────────────────────── */
+.honesty{background:var(--bg-2);border-top:1px solid var(--border)}
+.honesty-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:80px;align-items:start;margin-top:56px}
+@media(max-width:900px){.honesty-grid{grid-template-columns:1fr;gap:48px}}
+.honesty-list{list-style:none;padding:0;margin:0}
+.honesty-list li{padding:22px 0;border-bottom:1px solid var(--border);
+  display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start}
+.honesty-list li:first-child{border-top:1px solid var(--border)}
+.honesty-list .rule{font-family:var(--mono);font-size:12px;font-weight:500;
+  color:var(--negative);letter-spacing:.06em;text-transform:uppercase;padding-top:3px}
+.honesty-list .body{font-size:17px;color:var(--fg-2);line-height:1.5;letter-spacing:-0.008em}
+.honesty-list .body b{color:var(--fg);font-weight:700}
+.honesty-img{width:100%;aspect-ratio:4/3;object-fit:cover;
+  border-radius:var(--r-md);border:1px solid var(--border);background:var(--bg-3)}
+
+/* ── CTA ─────────────────────────────────────────────────────── */
+.cta{background:#000;color:#fff}
+.cta-inner{padding:96px 0;text-align:center}
+@media(max-width:640px){.cta-inner{padding:64px 0}}
+.cta h2{font-size:clamp(32px,4.4vw,52px);font-weight:800;letter-spacing:-0.035em;
+  line-height:1.06;max-width:22ch;margin:0 auto}
+.cta p{font-size:20px;color:#B7B7B7;margin-top:22px;max-width:56ch;
+  margin-left:auto;margin-right:auto;line-height:1.5;letter-spacing:-0.01em}
+.cta-buttons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:36px}
+.cta-buttons a{display:inline-block;padding:14px 26px;border-radius:var(--r-pill);
+  font-size:16px;font-weight:600;letter-spacing:-0.01em;text-decoration:none;transition:.14s}
+.cta-buttons .primary{background:#fff;color:#000}
+.cta-buttons .primary:hover{background:#EEE}
+.cta-buttons .secondary{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35)}
+.cta-buttons .secondary:hover{background:rgba(255,255,255,.08);border-color:#fff}
+
+footer{padding:56px 0 48px;font-size:14px;color:var(--fg-3);line-height:1.6;letter-spacing:-0.005em}
 footer strong{color:var(--fg-2);font-weight:700}
+footer .foot-grid{display:grid;grid-template-columns:2fr 1fr;gap:56px;align-items:start}
+@media(max-width:640px){footer .foot-grid{grid-template-columns:1fr;gap:32px}}
+footer .colofon{font-family:var(--mono);font-size:12px;color:var(--fg-3);letter-spacing:.02em}
+footer .colofon a{color:var(--fg-2);text-decoration:underline;text-underline-offset:3px}
+footer .colofon a:hover{color:var(--fg)}
+
+/* ── SCROLL REVEAL ───────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal.delay-1{transition-delay:.08s}
+.reveal.delay-2{transition-delay:.16s}
+.reveal.delay-3{transition-delay:.24s}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
 </style>
 </head>
 <body>
 
 <nav>
   <div class="nav-inner">
-    <span class="wordmark">Deadstock</span>
-    <a class="nav-link" href="#">Recalls</a>
-    <a class="nav-link" href="#">Hazards</a>
-    <a class="nav-link" href="#">Method</a>
+    <a class="wordmark" href="#" aria-label="Deadstock — home"><img src="brand/logo-white.svg" alt="Deadstock"></a>
+    <a class="nav-link" href="#how">How</a>
+    <a class="nav-link" href="#why">Why Elastic + Apify</a>
+    <a class="nav-link" href="#demo">Live matches</a>
+    <a class="nav-link" href="#chat">Ask</a>
+    <a class="nav-link" href="#method">Method</a>
     <span class="nav-right"><span class="dot"></span><span id="liveLabel">LIVE</span></span>
   </div>
 </nav>
 
-<div class="wrap">
-
-<header>
-  <div class="kicker">US CPSC recall database × live marketplace listings</div>
-  <div class="hero-num" id="heroNum">—</div>
-  <h1 class="hero-sub">recalled products you can buy right now</h1>
-  <div class="hero-meta" id="heroMeta">loading…</div>
-
-  <div class="mode">
-    <div class="seg" role="group" aria-label="Match mode">
-      <button data-mode="keyword"  aria-pressed="false">Keyword only</button>
-      <button data-mode="semantic" aria-pressed="true">Semantic</button>
-      <button data-mode="hybrid"   aria-pressed="false">Hybrid</button>
+<!-- ═══ HERO ═══════════════════════════════════════════════════ -->
+<header class="hero">
+  <video class="hero-bg" autoplay muted loop playsinline poster="brand/concept-barcode.png">
+    <source src="brand/hero-loop.mp4" type="video/mp4">
+  </video>
+  <div class="hero-scrim"></div>
+  <div class="wrap hero-inner">
+    <div class="kicker">US CPSC recall database × live marketplace listings</div>
+    <div class="hero-num" id="heroNum">—</div>
+    <h1 class="hero-sub">recalled products you can buy right now</h1>
+    <p class="hero-meta" id="heroMeta">loading…</p>
+    <div class="hero-cta">
+      <a class="primary" href="#demo">See live matches</a>
+      <a class="secondary" href="#how">How it works</a>
     </div>
-    <p class="mode-note" id="modeNote"></p>
   </div>
 </header>
 
-<div class="filters" id="filters"></div>
-<main class="grid" id="grid"></main>
-<div class="empty" id="empty" hidden><b>0</b>Keyword matching found almost nothing. That is the point — switch to Semantic.</div>
+<!-- ═══ HOW IT WORKS ═══════════════════════════════════════════ -->
+<section id="how">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-kicker">01 — What Deadstock does</div>
+      <h2 class="section-h">A federal recall database on one side. A live shopping web on the other. We prove the gap between them.</h2>
+      <p class="section-lede">The US government recalls dangerous products. Companies are supposed to pull them from shelves. Many never come off. Deadstock walks the gap in three moves.</p>
+    </div>
 
+    <div class="steps">
+      <div class="step reveal delay-1">
+        <img class="step-img" src="brand/still-recalls.jpg" alt="Stacked government recall documents">
+        <div class="step-n">Step 01</div>
+        <h3 class="step-h">Pull every federal recall notice.</h3>
+        <p class="step-p">The <b>CPSC recall database</b> is public but opaque — thousands of PDFs and structured records describing what was pulled, when, and for what hazard. We ingest the last three years, normalize hazard type, and build a semantic query per record.</p>
+      </div>
+
+      <div class="step reveal delay-2">
+        <img class="step-img" src="brand/still-scraping.jpg" alt="Warehouse fulfillment center at dusk">
+        <div class="step-n">Step 02</div>
+        <h3 class="step-h">Scrape what's for sale, right now.</h3>
+        <p class="step-p">The recall list is static. What's on shelves is not. <b>Apify's Amazon actor</b> pulls fresh listings against every recall query — title, price, image, seller, review count. Cached to disk minutes before demo so the venue wifi can't kill it.</p>
+      </div>
+
+      <div class="step reveal delay-3">
+        <img class="step-img" src="brand/still-matching.jpg" alt="Two identical cardboard boxes, one marked with a red sticker">
+        <div class="step-n">Step 03</div>
+        <h3 class="step-h">Match meaning, not words.</h3>
+        <p class="step-p"><b>Elasticsearch <code>semantic_text</code></b> joins the two sides. A recall says "clothing storage unit." The listing says "chest of drawers." Zero keyword overlap — but the embeddings put them next to each other. Same data, same index, two queries side by side.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WHY ELASTIC + APIFY ════════════════════════════════════ -->
+<section id="why" class="why">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-kicker">02 — Why Elastic + Apify</div>
+      <h2 class="section-h">A vector database matches. A search engine matches <em>and</em> aggregates. That's the whole argument.</h2>
+    </div>
+
+    <div class="why-grid">
+      <div class="why-body reveal delay-1">
+        <p><b>Apify</b> answers a question nobody has an API for: <em>what is for sale right now, on the actual page a shopper sees.</em> The recall database is public and static. Live inventory is not. Actors handle the scraping surface — pagination, anti-bot, structured extraction — so we can pull an Amazon search page as JSON in seconds.</p>
+        <p><b>Elastic</b> then does two things a vector store alone can't. <b>First</b>, <code>semantic_text</code> matches meaning across vocabularies that never overlap — dresser, chest of drawers, clothing storage unit — the join a keyword index will never make. <b>Second</b>, ES|QL runs regulator-grade aggregations over the same index: how many recalled products are still listed, grouped by hazard, by retailer, by how long ago the recall was issued. Semantic search + aggregations over one index is the specific thing Elastic does.</p>
+        <p>The Kibana <b>Agent Builder</b> is the interface layer. Two tools — <code>index_search</code> for semantic lookup, ES|QL for the aggregate questions — and one agent that decides which to call. Judges ask a question out loud, the agent answers it against data scraped minutes ago.</p>
+      </div>
+
+      <div class="contrast reveal delay-2" aria-label="Keyword vs semantic contrast">
+        <div class="contrast-row">
+          <div class="contrast-label"><span style="width:8px;height:8px;background:var(--fg-3);border-radius:50%;display:inline-block"></span>Recall notice</div>
+          <p class="contrast-quote">EnHomee 15-Drawer 51-inch Dressers <em>— unstable if not anchored to the wall, posing tip-over and entrapment hazards.</em></p>
+        </div>
+        <div class="contrast-row">
+          <div class="contrast-label"><span class="dot"></span>Live listing</div>
+          <p class="contrast-quote">15 Drawer Dresser for Bedroom, Tall Fabric <em>Chest of Drawers</em> with Side Pockets, Sturdy Metal Frame, Wood Top, <em>Closet Organizer for Nursery</em></p>
+        </div>
+        <div class="contrast-verdict">
+          <span class="miss">keyword search →</span> zero meaningful overlap. finds nothing.<br>
+          <span class="hit">semantic_text →</span> instant match. embeddings know the words are the same thing.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DEMO — the live matches wall ═══════════════════════════ -->
+<section id="demo" class="demo">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-kicker">03 — Live evidence</div>
+      <h2 class="section-h">Every card below is a recall on the left and a for-sale listing on the right — matched by the same index, scraped minutes ago.</h2>
+      <p class="section-lede">Toggle the match mode to see what a plain keyword index would return vs. what <code>semantic_text</code> catches. Filter by retailer or hazard type. Every card links to the original CPSC notice — <b>always verify before drawing conclusions.</b></p>
+
+      <div class="mode">
+        <div class="seg" role="group" aria-label="Match mode">
+          <button data-mode="keyword"  aria-pressed="false">Keyword only</button>
+          <button data-mode="semantic" aria-pressed="true">Semantic</button>
+          <button data-mode="hybrid"   aria-pressed="false">Hybrid</button>
+        </div>
+        <p class="mode-note" id="modeNote"></p>
+      </div>
+    </div>
+
+    <div class="filters reveal" id="filters"></div>
+    <main class="grid" id="grid"></main>
+    <div class="empty" id="empty" hidden><b>0</b>Keyword matching found almost nothing. That is the point — switch to Semantic.</div>
+  </div>
+</section>
+
+<!-- ═══ CHAT — Elastic Agent Builder in the page ══════════════ -->
+<section id="chat" class="chat">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-kicker">04 — Ask</div>
+      <h2 class="section-h">Ask Deadstock anything about these products.</h2>
+      <p class="section-lede">The agent runs on <b>Elastic Agent Builder</b> — the same <code>deadstock-matches</code> index the cards read, served through <code>index_search</code> and parameterized <code>ES|QL</code>. Answers cite the CPSC recall and the live listing.</p>
+
+      <div class="chat-panel">
+        <div class="chat-suggest" id="chatSuggest">
+          <p class="chat-suggest-label">Try one of these — or type your own:</p>
+          <div class="chat-suggest-chips">
+            <button class="chat-chip" data-q="How many recalled products are still for sale right now?">How many are still for sale?</button>
+            <button class="chat-chip" data-q="Show me the tip-over hazards that have been recalled the longest and are still listed.">Longest-listed tip-over hazards</button>
+            <button class="chat-chip" data-q="Break down the still-purchasable recalls by hazard type.">Break down by hazard type</button>
+            <button class="chat-chip" data-q="Which fire-hazard products are still on Amazon and how much do they cost?">Fire hazards on Amazon</button>
+          </div>
+        </div>
+        <div class="chat-thread" id="chatThread" role="log" aria-live="polite" aria-atomic="false"></div>
+        <form class="chat-form" id="chatForm">
+          <input class="chat-input" id="chatInput" type="text" placeholder="Ask about recalled products, hazards, retailers…" autocomplete="off" required>
+          <button class="chat-send" type="submit" id="chatSend">Ask</button>
+        </form>
+        <p class="chat-note">Powered by <code>deadstock-agent</code> with two tools — <code>deadstock-search</code> (index_search) and <code>deadstock-by-hazard</code> (ES|QL). Answers take 5–25 seconds depending on how many tools the agent chooses to call.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HONESTY / METHOD ═══════════════════════════════════════ -->
+<section id="method" class="honesty">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-kicker">05 — How to read this</div>
+      <h2 class="section-h">A lead generator for regulators, not a verdict.</h2>
+      <p class="section-lede">Deadstock makes accusations for a living. The guardrails aren't a disclaimer — they're the design.</p>
+    </div>
+
+    <div class="honesty-grid">
+      <ul class="honesty-list reveal delay-1">
+        <li>
+          <span class="rule">Rule 01</span>
+          <span class="body"><b>Every match shows a confidence tier.</b> High / medium / low, printed on the card. Low-confidence matches say so out loud.</span>
+        </li>
+        <li>
+          <span class="rule">Rule 02</span>
+          <span class="body"><b>Language is "likely match" — never "is."</b> A listing may be a corrected version, a different variant, or a different seller reusing a title. The algorithm doesn't know. It flags patterns.</span>
+        </li>
+        <li>
+          <span class="rule">Rule 03</span>
+          <span class="body"><b>Every card links to the CPSC notice.</b> A viewer can verify us in fifteen seconds on their phone. That's the point.</span>
+        </li>
+        <li>
+          <span class="rule">Rule 04</span>
+          <span class="body"><b>We describe patterns, not people.</b> No name-and-shame from the stage. Show the listing, describe the shape.</span>
+        </li>
+        <li>
+          <span class="rule">Rule 05</span>
+          <span class="body"><b>The ask is "this deserves a look" — not "this company is breaking the law."</b> Deadstock is a lead generator for regulators, not a compliance tool and not a verdict.</span>
+        </li>
+      </ul>
+
+      <img class="honesty-img reveal delay-2" src="brand/still-method.jpg" alt="An investigator's desk with a loupe, notebook, and pinned research">
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ════════════════════════════════════════════════════ -->
+<section class="cta">
+  <div class="wrap cta-inner reveal">
+    <h2>Built in a single evening. Open-sourced the same night.</h2>
+    <p>Deadstock was built live for the Elastic + Apify Hack Night in Austin on July 31, 2026. If it's useful to you — regulators, safety researchers, journalists, or retailers — the code and the method are on GitHub.</p>
+    <div class="cta-buttons">
+      <a class="primary" href="https://github.com/firushanov/Deadstock" target="_blank" rel="noopener">View on GitHub ↗</a>
+      <a class="secondary" href="mailto:hanovconsulting@gmail.com">Get in touch</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═════════════════════════════════════════════════ -->
 <footer>
-  <strong>How to read this.</strong> Matches are generated algorithmically by comparing CPSC recall notices to marketplace listings scraped minutes ago.
-  A match indicates a <strong>likely</strong> product correspondence, not a verified one — a listing may be a different variant, a corrected version, or a different seller reusing a title.
-  Always check the linked CPSC recall notice before drawing conclusions. Deadstock is a research demo and a lead generator for regulators, not a compliance tool and not a verdict.
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <strong>How to read this.</strong> Matches are generated algorithmically by comparing CPSC recall notices to marketplace listings scraped minutes ago.
+        A match indicates a <strong>likely</strong> product correspondence, not a verified one — a listing may be a different variant, a corrected version, or a different seller reusing a title.
+        Always check the linked CPSC recall notice before drawing conclusions. Deadstock is a research demo and a lead generator for regulators, not a compliance tool and not a verdict.
+      </div>
+      <div class="colofon">
+        Built by <a href="mailto:hanovconsulting@gmail.com">Firus Hanov</a> · Hanov Consulting, Austin<br>
+        Data: <a href="https://www.cpsc.gov/Recalls" target="_blank" rel="noopener">CPSC</a> · Scraping: <a href="https://apify.com" target="_blank" rel="noopener">Apify</a> · Search: <a href="https://www.elastic.co" target="_blank" rel="noopener">Elastic</a><br>
+        <a href="https://github.com/firushanov/Deadstock" target="_blank" rel="noopener">Source on GitHub ↗</a>
+      </div>
+    </div>
+  </div>
 </footer>
-
-</div>
 
 <script>
 /* hazard palette — Uber Base negative/warning family, legible on white */
@@ -203,8 +526,8 @@ const HAZ = {
   electrical:{l:'Electrical',c:'#8A6400'},     other:{l:'Other',c:'#545454'}
 };
 const NOTE = {
-  keyword:'Recall notices and product listings never use the same words. A recall says <b>“clothing storage unit.”</b> The listing says <b>“chest of drawers.”</b> Exact matching finds almost nothing.',
-  semantic:'Elastic <b>semantic_text</b> matches meaning, not words — the embeddings put “dresser,” “chest of drawers,” and “clothing storage unit” next to each other. Same data. Same index.',
+  keyword:'Recall notices and product listings never use the same words. A recall says <b>"clothing storage unit."</b> The listing says <b>"chest of drawers."</b> Exact matching finds almost nothing.',
+  semantic:'Elastic <b>semantic_text</b> matches meaning, not words — the embeddings put "dresser," "chest of drawers," and "clothing storage unit" next to each other. Same data. Same index.',
   hybrid:'RRF blends the keyword and semantic rankings. Keyword contributes precision where the words happen to line up; semantic carries everything else.'
 };
 
@@ -298,6 +621,12 @@ function buildFilters(){
 
 document.querySelectorAll('.seg button').forEach(b => b.onclick = () => { mode = b.dataset.mode; render(); });
 
+/* Scroll reveal — IntersectionObserver, one-shot per element */
+const io = new IntersectionObserver((entries) => {
+  for (const e of entries) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+}, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
 /* Serve over http (python3 -m http.server 8080) — file:// blocks fetch.
    If the data file is missing the fallback renders, so you never stare
    at a blank screen on stage. */
@@ -320,6 +649,88 @@ document.querySelectorAll('.seg button').forEach(b => b.onclick = () => { mode =
 
   buildFilters();
   render();
+})();
+
+/* ── Chat ──────────────────────────────────────────────────────
+   Talks to /api/chat (see scripts/serve.ts). Never talks to Kibana
+   directly -- the Elastic API key stays server-side. */
+(function(){
+  const suggest = document.getElementById('chatSuggest');
+  const thread  = document.getElementById('chatThread');
+  const form    = document.getElementById('chatForm');
+  const input   = document.getElementById('chatInput');
+  const send    = document.getElementById('chatSend');
+  let conversationId = null;
+
+  function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+
+  // Tiny markdown -> HTML for the agent's replies. Handles: **bold**, `code`,
+  // [text](url), paragraphs on blank lines, unordered lists (- prefix).
+  function md(text){
+    let s = esc(text);
+    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g,
+      (_, label, href) => `<a href="${href}" target="_blank" rel="noopener noreferrer">${label}</a>`);
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+    const blocks = s.split(/\n\n+/);
+    return blocks.map(b => {
+      const lines = b.split(/\n/);
+      if (lines.every(l => /^\s*-\s+/.test(l))) {
+        return '<ul>' + lines.map(l => `<li>${l.replace(/^\s*-\s+/, '')}</li>`).join('') + '</ul>';
+      }
+      return '<p>' + b.replace(/\n/g, '<br>') + '</p>';
+    }).join('');
+  }
+
+  function addMsg(role, html, opts){
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role + (opts && opts.pending ? ' pending' : '') + (opts && opts.error ? ' error' : '');
+    div.innerHTML = html;
+    thread.appendChild(div);
+    thread.scrollTop = thread.scrollHeight;
+    return div;
+  }
+
+  async function ask(question){
+    const q = (question || '').trim();
+    if (!q) return;
+    if (suggest) suggest.hidden = true;
+    addMsg('user', esc(q));
+    input.value = '';
+    input.disabled = true;
+    send.disabled = true;
+    const pending = addMsg('bot', 'Deadstock is analyzing <span class="dots">•••</span>', { pending: true });
+    try {
+      const r = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: q, conversation_id: conversationId || undefined }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || j.error || `HTTP ${r.status}`);
+      conversationId = j.conversation_id || conversationId;
+      pending.classList.remove('pending');
+      let html = md(j.message || '(no response)');
+      if (j.tool_calls && j.tool_calls.length) {
+        const chips = j.tool_calls.map(t => `<span class="tool-chip">${esc(t.tool_id || t.tool_type || 'tool')}</span>`).join('');
+        html += `<div class="chat-tools">Tools called: ${chips}</div>`;
+      }
+      pending.innerHTML = html;
+      thread.scrollTop = thread.scrollHeight;
+    } catch (e) {
+      pending.classList.remove('pending');
+      pending.classList.add('error');
+      pending.textContent = 'Error: ' + (e && e.message ? e.message : String(e)) +
+        ' — is the server running? Try `npm run serve`.';
+    } finally {
+      input.disabled = false;
+      send.disabled = false;
+      input.focus();
+    }
+  }
+
+  form.addEventListener('submit', (e) => { e.preventDefault(); ask(input.value); });
+  document.querySelectorAll('.chat-chip').forEach(c => c.addEventListener('click', () => ask(c.dataset.q)));
 })();
 </script>
 </body>

@@ -14,7 +14,8 @@
     "scrape": "tsx scripts/04-scrape.ts",
     "index": "tsx scripts/05-index.ts",
     "match": "tsx scripts/06-match.ts",
-    "agent": "tsx scripts/07-agent-setup.ts"
+    "agent": "tsx scripts/07-agent-setup.ts",
+    "serve": "tsx scripts/serve.ts"
   },
   "dependencies": {
     "@elastic/elasticsearch": "9.4.3",
