@@ -138,7 +138,13 @@ section{padding:112px 0}
   line-height:1.5;letter-spacing:-0.01em}
 .mode-note b{color:var(--fg);font-weight:700}
 
-.filters{display:flex;gap:8px;flex-wrap:wrap;padding:28px 0 32px;border-top:1px solid var(--border);margin-top:40px}
+/* Two-row filter stack: retailer logos on top (prominent, first-class filter),
+   hazard chips below. The story is which marketplaces are still selling
+   recalled goods, so retailers get the visual weight. */
+.filters{display:flex;flex-direction:column;gap:20px;padding:28px 0 32px;
+  border-top:1px solid var(--border);margin-top:40px}
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.filter-row-retailers{gap:14px}
 .chip{
   font-family:var(--sans);font-size:14px;font-weight:500;letter-spacing:-0.005em;
   padding:9px 16px;border:none;background:var(--bg-2);color:var(--fg-2);
@@ -147,15 +153,22 @@ section{padding:112px 0}
 .chip:hover{background:var(--bg-3);color:var(--fg)}
 .chip[aria-pressed="true"]{background:#000;color:#fff}
 
-/* retailer chips render a monochrome wordmark instead of text.
-   invert the mark when the chip goes active so it reads on the black pill. */
-.chip-retailer{padding:8px 16px;display:inline-flex;align-items:center;justify-content:center;
-  min-width:88px;height:36px}
-.chip-retailer img{height:16px;width:auto;display:block;opacity:.72;transition:opacity .14s,filter .14s;
-  pointer-events:none}
+/* Retailer chip renders a monochrome wordmark instead of text. Larger than
+   the hazard chips so the logos actually read. Active state inverts the mark
+   to white so it holds up on the black pill. */
+.chip-retailer{padding:14px 26px;display:inline-flex;align-items:center;justify-content:center;
+  min-width:132px;height:56px;background:var(--bg-2);border-radius:var(--r-pill);
+  cursor:pointer;border:1px solid transparent;transition:.14s}
+.chip-retailer:hover{background:var(--bg-3);border-color:var(--border)}
+.chip-retailer[aria-pressed="true"]{background:#000;border-color:#000}
+.chip-retailer img{height:24px;width:auto;display:block;opacity:.85;
+  transition:opacity .14s,filter .14s;pointer-events:none}
 .chip-retailer:hover img{opacity:1}
 .chip-retailer[aria-pressed="true"] img{filter:invert(1);opacity:1}
-.filter-divider{width:1px;align-self:stretch;background:var(--border);margin:0 4px}
+@media(max-width:640px){
+  .chip-retailer{min-width:104px;height:48px;padding:10px 18px}
+  .chip-retailer img{height:20px}
+}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:20px}
 @media(max-width:540px){.grid{grid-template-columns:1fr}}
@@ -199,6 +212,20 @@ section{padding:112px 0}
 
 .empty{padding:88px 0;text-align:center;color:var(--fg-2);font-size:18px;letter-spacing:-0.01em}
 .empty b{display:block;font-size:56px;font-weight:800;letter-spacing:-0.04em;color:var(--fg);margin-bottom:12px}
+
+/* ── ARCHITECTURE — full-width exhibits on a soft mat ───────── */
+.architecture{border-top:1px solid var(--border)}
+.arch-list{display:flex;flex-direction:column;gap:40px;margin-top:56px}
+@media(max-width:640px){.arch-list{gap:28px;margin-top:36px}}
+.arch-fig{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r-md);padding:28px;margin:0}
+@media(max-width:640px){.arch-fig{padding:16px}}
+.arch-fig img{width:100%;height:auto;display:block;border-radius:var(--r-sm);background:#fff}
+.arch-cap{margin-top:18px;display:flex;gap:16px;align-items:baseline;flex-wrap:wrap}
+.arch-cap-label{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--negative);
+  letter-spacing:.08em;text-transform:uppercase;flex:none}
+.arch-cap-text{font-size:16px;color:var(--fg-2);letter-spacing:-0.008em;line-height:1.5;flex:1;min-width:240px}
+.arch-cap-text b{color:var(--fg);font-weight:700}
+.arch-cap-text code{font-family:var(--mono);font-size:13px;background:var(--bg-3);padding:2px 6px;border-radius:4px;color:var(--fg)}
 
 /* ── CHAT — Elastic Agent Builder embed ─────────────────────── */
 .chat{background:var(--bg);border-top:1px solid var(--border)}
@@ -429,11 +456,40 @@ footer .colofon a:hover{color:var(--fg)}
   </div>
 </section>
 
+<!-- ═══ ARCHITECTURE — how it's wired ═══════════════════════════ -->
+<section id="architecture" class="architecture">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-kicker">04 — Architecture</div>
+      <h2 class="section-h">Under the hood — eight scripts, three indices, and one agent.</h2>
+      <p class="section-lede">A pair of diagrams: the shape at a glance, then every wire, index, and tool call. Cached to disk at every stage so the venue wifi can't kill the demo.</p>
+    </div>
+
+    <div class="arch-list">
+      <figure class="arch-fig reveal delay-1">
+        <img src="brand/architecture.png" alt="Deadstock high-level system architecture" loading="lazy">
+        <figcaption class="arch-cap">
+          <span class="arch-cap-label">Diagram 01 — The shape</span>
+          <span class="arch-cap-text"><b>CPSC recalls</b> flow in from one side, <b>Apify actors</b> scrape retail listings from the other. Elastic's <code>semantic_text</code> joins them into <code>deadstock-matches</code>. The <b>Agent Builder</b> agent answers questions on top.</span>
+        </figcaption>
+      </figure>
+
+      <figure class="arch-fig reveal delay-2">
+        <img src="brand/architecture-detailed.png" alt="Deadstock detailed pipeline architecture" loading="lazy">
+        <figcaption class="arch-cap">
+          <span class="arch-cap-label">Diagram 02 — Every wire</span>
+          <span class="arch-cap-text"><b>Numbered pipeline scripts</b> cache to <code>data/</code> at every stage, three indices carry the pinned inference id, and three Agent Builder tools sit on top of <code>deadstock-matches</code> — one <code>index_search</code>, two parameterized <code>ES|QL</code>.</span>
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
 <!-- ═══ CHAT — Elastic Agent Builder in the page ══════════════ -->
 <section id="chat" class="chat">
   <div class="wrap">
     <div class="reveal">
-      <div class="section-kicker">04 — Ask</div>
+      <div class="section-kicker">05 — Ask</div>
       <h2 class="section-h">Ask Deadstock anything about these products.</h2>
       <p class="section-lede">The agent runs on <b>Elastic Agent Builder</b> — the same <code>deadstock-matches</code> index the cards read, served through <code>index_search</code> and parameterized <code>ES|QL</code>. Answers cite the CPSC recall and the live listing.</p>
 
@@ -462,7 +518,7 @@ footer .colofon a:hover{color:var(--fg)}
 <section id="method" class="honesty">
   <div class="wrap">
     <div class="reveal">
-      <div class="section-kicker">05 — How to read this</div>
+      <div class="section-kicker">06 — How to read this</div>
       <h2 class="section-h">A lead generator for regulators, not a verdict.</h2>
       <p class="section-lede">Deadstock makes accusations for a living. The guardrails aren't a disclaimer — they're the design.</p>
     </div>
@@ -639,13 +695,18 @@ function render(){
 function buildFilters(){
   const box = document.getElementById('filters');
   const hazards = [...new Set(ALL.map(m=>m.hazard_type).filter(Boolean))];
-  box.innerHTML =
+  const retailerRow = `<div class="filter-row filter-row-retailers" role="group" aria-label="Filter by retailer">` +
     RETAILERS.map(r =>
       `<button class="chip chip-retailer" data-k="retailer" data-v="${esc(r.id)}" aria-pressed="false" title="Filter to ${esc(r.label)}"><img src="${esc(r.logo)}" alt="${esc(r.label)}" loading="lazy"></button>`
     ).join('') +
-    (hazards.length ? '<span class="filter-divider" aria-hidden="true"></span>' : '') +
-    hazards.map(hz=>{const h=HAZ[hz]||HAZ.other;
-      return `<button class="chip" data-k="hazard" data-v="${esc(hz)}" aria-pressed="false">${esc(h.l)}</button>`}).join('');
+  `</div>`;
+  const hazardRow = hazards.length
+    ? `<div class="filter-row" role="group" aria-label="Filter by hazard">` +
+        hazards.map(hz=>{const h=HAZ[hz]||HAZ.other;
+          return `<button class="chip" data-k="hazard" data-v="${esc(hz)}" aria-pressed="false">${esc(h.l)}</button>`}).join('') +
+      `</div>`
+    : '';
+  box.innerHTML = retailerRow + hazardRow;
   box.querySelectorAll('.chip').forEach(c => c.onclick = () => {
     const k=c.dataset.k, v=c.dataset.v;
     if (k==='retailer') fRetailer = fRetailer===v ? null : v;
