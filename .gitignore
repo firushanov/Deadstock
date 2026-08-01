@@ -70,6 +70,11 @@ web_modules/
 .env.*
 !.env.example
 
+# Deadstock: local-only project docs (not for public repo)
+CLAUDE.md
+THEME.md
+DEADSTOCK-BUILD-PLAN.md
+
 # Deadstock: cached pipeline output (regenerable, can hold PII / MB of scrape data).
 # Use data/* not data/ so git will descend and apply the negations below.
 # Whitelist 06-matches.json because the static index.html demo reads it directly --
