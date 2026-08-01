@@ -39,7 +39,7 @@ The UI ships with a toggle that demonstrates this live. Switch between keyword a
 CPSC recall database          Apify actors
 (saferproducts.gov API)       (Amazon / Walmart / eBay search)
         │                              │
-        │  877 recalls, 24 months      │  ~1,250 live listings
+        │  20 focus recalls            │  ~1,250 live listings
         └──────────────┬───────────────┘
                        ▼
               Elasticsearch Serverless
@@ -55,8 +55,9 @@ CPSC recall database          Apify actors
                        │
         ┌──────────────┴───────────────┐
         ▼                              ▼
-   Next.js UI                  Kibana Agent Builder
-   (the wall of cards)         (3 tools: index search + 2 ES|QL)
+  Static landing page          Kibana Agent Builder
+  (index.html — wall of        (2 custom tools + 3 platform
+   cards + hero video)          tools + system prompt)
 ```
 
 **Three indices:**
@@ -71,12 +72,37 @@ That last column, `found_by_keyword`, is the whole argument. It's what makes the
 
 ---
 
-## Why Elastic and not a vector database
+## How this actually works
 
-Two things happen over one index:
+Two pieces of infrastructure, one job each. Together they do something neither can do alone.
 
-1. **Semantic retrieval** does the messy part — matching regulatory language to marketing copy.
-2. **ES|QL aggregations** answer the questions a regulator would actually ask, over the same data, with no second system:
+### Apify — the data that changes
+
+The recall list is public and static — you can download it once and it holds still. What's on Amazon, Walmart, and eBay's shelves right now is not static, and there is no official API for it. That data lives on rendered HTML behind pagination, anti-bot logic, and JavaScript.
+
+Apify actors are pre-built scrapers that handle all of that surface work. You send a search query; you get back structured JSON — title, price, image, rating, seller, listing URL. Deadstock uses three:
+
+| Retailer | Actor |
+|---|---|
+| Amazon | `santamaria-automations/amazon-search-scraper` |
+| Walmart | `automation-lab/walmart-scraper` |
+| eBay | `automation-lab/ebay-scraper` |
+
+For every recall, Deadstock derives a shopper-language query (*"15 drawer dresser"* rather than *"clothing storage unit"*), fans it out across all three actors, and caches the raw response to disk. The full three-retailer scrape costs ~$2.50 and takes about 90 seconds.
+
+**Without Apify, the second half of the join does not exist.** You could crawl the sites yourself, but you would spend all your time on rate-limiting, cookie handling, and CAPTCHA detection — not on the actual product.
+
+### Elastic — the join, and then the questions
+
+Two capabilities in one system, over one index. That is the specific reason Elastic is here and not a vector database.
+
+**1. `semantic_text` matches meaning across vocabularies that never overlap.**
+
+Mark a field as `semantic_text` and Elastic runs an embedding model on it automatically. Query it with a plain `match` and it does vector similarity search behind the scenes — you never handle embeddings yourself. That is how *"clothing storage unit"* matches *"chest of drawers"*: the two phrases live next to each other in the model's embedding space even though the words don't overlap.
+
+**2. ES|QL runs real aggregations on the same data.**
+
+Once the join exists, you can ask the kind of question a regulator actually asks — how many recalled products are still listed, grouped by hazard type, grouped by retailer, sorted by how long ago the recall was issued. One query, one index, one system:
 
 ```esql
 FROM deadstock-matches
@@ -89,18 +115,50 @@ FROM deadstock-matches
 | LIMIT ?limit
 ```
 
-A vector database gives you the first half.
+A vector database gives you the first half. It hands you a list of neighbors. Elastic gives you neighbors *plus* the ability to count, group, sort, and filter them like a real database. That combination is what makes Deadstock useful to somebody who has to prioritize which recalls to chase.
+
+### The agent — the conversation layer
+
+Deadstock ships as an agent inside **Kibana Agent Builder** (GA since January 2026). Not a webpage and not a custom chatbot — the actual Elastic product. `scripts/07-agent-setup.ts` registers everything via the Kibana REST API and is idempotent.
+
+**Two custom tools:**
+
+| Tool | Type | When the agent picks it |
+|---|---|---|
+| `deadstock-search` | `index_search` | Any specific product, brand, retailer, or hazard question. Returns up to 20 matched pairs with retailer, price, hazard, listing URL, and CPSC URL. |
+| `deadstock-by-hazard` | `esql` | "How many," "which category," "break down by" questions. Runs the aggregation query above with parameters the LLM fills in. |
+
+**Plus three Elastic platform tools** the agent can reach for as fallbacks: `platform.core.search`, `platform.core.execute_esql`, `platform.core.list_indices`.
+
+**The system prompt enforces six rules on every answer:**
+
+- Always cite both URLs — the CPSC recall page and the live listing page.
+- Lead with the number, then the examples. *"Eleven. Here are the three worst."*
+- Plain language for hazards. *"Can catch fire,"* not *"thermal event."*
+- If a match is low-confidence, say so.
+- Never tell a user a product is safe. You only know what is listed, not what is verified.
+- Direct and brief. No preamble.
+
+**Three questions to try:**
+
+1. *"How many recalled products are still for sale on Amazon?"*
+2. *"Show me the tip-over hazards recalled longest ago that are still listed."*
+3. *"Break down still-purchasable recalls by hazard type."*
+
+The landing page includes a small proxy (`/api/chat` in `scripts/serve.ts`) that forwards messages to the Kibana agent so the browser never sees the API key. You can also use the agent directly in Kibana → Agent Builder → Deadstock.
 
 ---
 
 ## Stack
 
 - **TypeScript / Node 20+**
-- **Next.js 15** (App Router) — UI and API routes
 - **Elasticsearch Serverless** — `semantic_text` for zero-setup embeddings
 - **Kibana Agent Builder** (GA since Jan 2026) — the conversational layer
-- **Apify** — live retail scraping
-- **Tailwind CSS v4**
+- **Apify** — Amazon, Walmart, and eBay search actors
+- **Static single-file landing page** (`index.html`) — vanilla HTML/CSS with the Uber Base theme documented in `THEME.md`
+- **Higgsfield** — hero background loop and the four editorial section stills in `brand/`
+
+No build step. No framework. The static page reads `data/06-matches.json` directly and re-renders on the mode toggle in ~15 lines of vanilla JS.
 
 ---
 
@@ -116,14 +174,15 @@ npm run preflight              # verifies Elastic + Kibana + Apify before you sp
 Then run the pipeline in order. Every stage caches to `data/`, so you can replay any step without re-scraping or re-paying:
 
 ```bash
-npm run pipeline:recalls    # 01 + 02 — fetch and normalize CPSC recalls
-npm run pipeline:queries    # 03 — derive shopper-language search terms
-npm run pipeline:scrape     # 04 — Apify, all three retailers  (costs ~$2.50)
-npm run pipeline:index      # 05 — create indices, bulk index with embeddings
-npm run pipeline:match      # 06 — the semantic join
-npm run agent:setup         # 07 — create Agent Builder tools + agent via API
+npm run fetch        # 01 — pull CPSC recalls (last 24 months)
+npm run normalize    # 02 — clean, extract hazard type, keep top 20 focus recalls
+npm run queries      # 03 — derive shopper-language search terms per recall
+npm run scrape       # 04 — Apify: Amazon + Walmart + eBay  (~$2.50, ~90s)
+npm run index        # 05 — create indices, bulk index with embeddings
+npm run match        # 06 — the semantic join, writes data/06-matches.json
+npm run agent        # 07 — create Agent Builder tools + agent via API
 
-npm run dev                 # http://localhost:3000
+npm run serve        # http://localhost:8080  (serves the site + /api/chat proxy)
 ```
 
 ### Environment
@@ -164,7 +223,7 @@ Everything here was verified live against the real APIs, not read from docs.
 
 ## Cost
 
-Runs inside the Apify free tier ($5/month, no credit card).
+Runs comfortably under the $50 Apify credit that ships with the Elastic + Apify Hack Night coupon.
 
 | Retailer | Queries | Results each | Cost |
 |---|---|---|---|

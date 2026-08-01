@@ -156,24 +156,24 @@ section{padding:112px 0}
 /* Retailer chip renders a monochrome wordmark instead of text. Larger than
    the hazard chips so the logos actually read. Active state inverts the mark
    to white so it holds up on the black pill. */
-.chip-retailer{padding:22px 44px;display:inline-flex;align-items:center;justify-content:center;
-  min-width:220px;height:88px;background:var(--bg-2);border-radius:var(--r-pill);
+.chip-retailer{padding:28px 52px;display:inline-flex;align-items:center;justify-content:center;
+  min-width:260px;height:112px;background:var(--bg-2);border-radius:var(--r-pill);
   cursor:pointer;border:1px solid transparent;transition:.14s}
 .chip-retailer:hover{background:var(--bg-3);border-color:var(--border)}
 .chip-retailer[aria-pressed="true"]{background:#000;border-color:#000}
-.chip-retailer img{height:40px;width:auto;display:block;opacity:.9;
+.chip-retailer img{height:56px;width:auto;display:block;opacity:.9;
   transition:opacity .14s,filter .14s;pointer-events:none}
 .chip-retailer:hover img{opacity:1}
 .chip-retailer[aria-pressed="true"] img{filter:invert(1);opacity:1}
 @media(max-width:900px){
   .filter-row-retailers{gap:14px}
-  .chip-retailer{min-width:150px;height:68px;padding:14px 28px}
-  .chip-retailer img{height:28px}
+  .chip-retailer{min-width:180px;height:84px;padding:18px 34px}
+  .chip-retailer img{height:38px}
 }
 @media(max-width:540px){
   .filter-row-retailers{gap:10px}
-  .chip-retailer{min-width:98px;height:56px;padding:10px 16px}
-  .chip-retailer img{height:22px}
+  .chip-retailer{min-width:118px;height:68px;padding:14px 22px}
+  .chip-retailer img{height:30px}
 }
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:20px}
@@ -919,6 +919,45 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
   form.addEventListener('submit', (e) => { e.preventDefault(); ask(input.value); });
   document.querySelectorAll('.chat-chip').forEach(c => c.addEventListener('click', () => ask(c.dataset.q)));
+})();
+
+/* ── Floating chat widget: open/close ─────────────────────────
+   The chat backend above binds by ID — those IDs live inside the
+   widget now, so it keeps working unchanged. This IIFE only owns
+   the launcher + panel visibility. */
+(function initChatWidget(){
+  const widget = document.querySelector('.chatw');
+  if (!widget) return;
+  const launcher = widget.querySelector('#chatwLauncher');
+  const panel = widget.querySelector('#chatwPanel');
+  const closeBtn = widget.querySelector('#chatwClose');
+  const input = widget.querySelector('#chatInput');
+
+  function open(){
+    if (widget.dataset.open === 'true') return;
+    widget.dataset.open = 'true';
+    launcher.setAttribute('aria-expanded', 'true');
+    launcher.setAttribute('aria-label', 'Close chat');
+    panel.setAttribute('aria-hidden', 'false');
+    setTimeout(() => input && input.focus(), 220);
+  }
+  function close(){
+    if (widget.dataset.open !== 'true') return;
+    widget.dataset.open = 'false';
+    launcher.setAttribute('aria-expanded', 'false');
+    launcher.setAttribute('aria-label', 'Ask Deadstock');
+    panel.setAttribute('aria-hidden', 'true');
+    launcher.focus();
+  }
+  function toggle(){ widget.dataset.open === 'true' ? close() : open(); }
+
+  launcher.addEventListener('click', toggle);
+  closeBtn.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && widget.dataset.open === 'true') close();
+  });
+  document.querySelectorAll('[data-open-chat]').forEach(el =>
+    el.addEventListener('click', (e) => { e.preventDefault(); open(); }));
 })();
 </script>
 </body>
