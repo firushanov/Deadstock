@@ -1,11 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 170" width="240" height="170" role="img" aria-label="Deadstock">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&amp;display=swap');
-    .wm{font-family:'Plus Jakarta Sans',-apple-system,'SF Pro Text','Segoe UI',Helvetica,Arial,sans-serif;
-        font-weight:800;font-size:37px;letter-spacing:-1.6px;fill:#000}
-  </style>
   <!-- barcode mark: three red bars among black. the red ones are the
-       recalled products that never came off the shelf. -->
+       recalled products that never came off the shelf.
+       Note: styling is inline (not <style>+@import) because GitHub's SVG
+       sanitizer blocks external network requests, which dropped the font. -->
   <g fill="#000">
     <rect x="0"   y="0" width="8"  height="96"/>
     <rect x="14"  y="0" width="4"  height="96"/>
@@ -28,5 +25,10 @@
     <rect x="92"  y="0" width="16" height="96"/>
     <rect x="176" y="0" width="12" height="96"/>
   </g>
-  <text class="wm" x="0" y="150">DEADSTOCK</text>
+  <text x="0" y="150"
+        font-family="Plus Jakarta Sans, -apple-system, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-weight="800"
+        font-size="37"
+        letter-spacing="-1.6"
+        fill="#000">DEADSTOCK</text>
 </svg>
