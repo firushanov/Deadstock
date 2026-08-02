@@ -7,6 +7,8 @@
 
 **Recalled products you can buy right now.**
 
+**Live:** [deadstock.hanovconsulting.com](https://deadstock.hanovconsulting.com)
+
 The US government recalls products for being dangerous. Companies are supposed to pull them off the shelves. Many never come off.
 
 Deadstock proves it. It pulls the federal recall database, scrapes live listings from Amazon, Walmart, and eBay, and uses Elasticsearch semantic search to match the two. The output is a wall of cards — on the left, a product the government recalled; on the right, that same product, in stock, with a working Buy button.
